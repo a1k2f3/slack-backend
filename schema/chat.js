@@ -14,18 +14,10 @@ const messageSchema = new mongoose.Schema({
     message: String,
     role: { type: String,required: true }, //
     timestamp: { type: Date, default: Date.now },
-    location: {
-      type: {
-        type: String,
-        enum: ["Point"],
-        default: "Point",
-      },
-      coordinates: {
-        type: [Number],
-        index: "2dsphere",
-      },
-    },
-    image: { type: String },
+   
+    image: { type: String  ,default:null},
+    documents: { type: String,default:null },
+    video: { type: String,default:null },
 
   });
   const Chats = mongoose.model('chats', messageSchema);

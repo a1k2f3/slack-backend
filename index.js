@@ -7,7 +7,6 @@ import setupSocket, { onlineUsers } from './modules/SocketsMManegar.js';
 import login from './modules/login.js';
 import register from './modules/signupapi.js';
 import findusers from './modules/findusers.js';
-// import userlocation from './modules/userlocation.js';
 import Chatroutes from './modules/chat/routes.js';
 import  AudioData from './modules/Audiofiles/audiorecorde.js';
 import  bookingReqquest from './modules/requestmodule/customerrequest.js'; // Adjust the path as needed
@@ -31,8 +30,8 @@ app.use(express.static('chat'));
 app.use(express.urlencoded({ extended: true })); 
 app.use('/api', register(io),express.static('public')); // Make sure the register function is returning a router
 app.use('/api', login(io, onlineUsers),express.static('public')); // Make sure the login function is returning a router
-app.use('/api', findusers); // Ensure this also returns an Express router
-app.use('/api', userlocation(io)); // Same for userlocation
+app.use('/api', findusers); // Ensure this also returns an Express route
+ // Same for userlocation
 app.use('/api', Chatroutes,express.static('chat')); // Ensure Chatroutes returns a router
 app.use('/api', AudioData); // Ensure Chatroutes returns a router
 app.use('/api', bookingReqquest); // Ensure Chatroutes returns a router

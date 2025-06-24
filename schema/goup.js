@@ -21,6 +21,11 @@ const groupschema= new mongoose.Schema({
         ref: 'Accounts',
         required: true
     },
+    role: {
+        type: String,
+        enum: ['admin', 'member'],
+        default: 'member'
+    },
     createdAt: {
         type: Date,
         default: Date.now

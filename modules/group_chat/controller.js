@@ -1,33 +1,30 @@
 // import Message from '../models/Message.mjs';
 
+// import { group } from "console";
+import Group from "../../schema/goup";
 import GroupChat from "../../schema/groupchat";
 // Send a message from user to mechanic
 import path from "path";
 export const sendMessage = async (req, res) => {
-  // const { groupid } = req.body;
-  const {senderId,message, location } = req.body;
-  // const image = req.file?.path.replace(/\\/g, "/"); // Normalize the path for cross-platform compatibility
-  if (!senderId || !receiverId || !message || !role || !location) {
+  const {groupid,senderId,message} = req.body;
+  if (!groupid||!senderId  || !message) {
     return res.status(400).json({ success: false, error: 'Missing required fields' });
   }
   
   try {
     const newMessage = new GroupChat({
+      groupid,
       senderId,
-    
       message,
-      role,
-      location,
-      image,
+      documents: req.file ? req.file.path.replace(/\\/g, "/") : null, // Normalize the path for cross-platform compatibility
     });
     await newMessage.save();
-    const roomId = [senderId, receiverId].sort().join("-");
-    req.io.to(`room-${roomId}`).emit('receive-message', {
+    
+    req.io.to(`room-${groupid}`).emit('receive-message', {
       senderId,
-      receiverId,
+      groupid,
       message,
-      location,
-      image,
+      documents: newMessage.documents, // Use the saved document path
       timestamp: newMessage.createdAt,
     });
     res.status(201).json({ success: true, data: newMessage });
@@ -37,36 +34,32 @@ export const sendMessage = async (req, res) => {
   }
 };
 export const createGroup = async (req, res) => {
-    const { groupname,member_name,profile_image,role } = req.body;
-    const image = req.file?.path.replace(/\\/g, "/"); // Normalize the path for cross-platform compatibility
-    if (!groupname|| !member_name|| !role ) {
-      return res.status(400).json({ success: false, error: 'Missing required fields' });
-    }
-    
-    try {
-      const newgroup = new Chats({
-        goupname,member_name,
-        profile_image,
-        role,
-        location,
-        image,
-      });
-      await newMessage.save();
-      const roomId = [senderId, receiverId].sort().join("-");
-      req.io.to(`room-${roomId}`).emit('receive-message', {
-        senderId,
-        receiverId,
-        message,
-        location,
-        image,
-        timestamp: newMessage.createdAt,
-      });
-      res.status(201).json({ success: true, data: newMessage });
-    } catch (error) {
-      console.error("❌ Error sending message:", error.message);
-      res.status(500).json({ success: false, error: 'Failed to send message' });
-    }
-  };
+  const { groupname, description, members, createdby, role } = req.body;
+  const groupimage = req.file?.path.replace(/\\/g, "/");
+
+  if (!groupname || !role || !createdby || !members) {
+    return res.status(400).json({ success: false, error: 'Missing required fields' });
+  }
+
+  try {
+    const newGroup = new Group({
+      groupname,
+      description,
+      members,
+      groupimage,
+      createdby,
+      role
+    });
+
+    await newGroup.save();
+
+    res.status(201).json({ success: true, data: newGroup });
+  } catch (error) {
+    console.error("❌ Error creating group:", error.message);
+    res.status(500).json({ success: false, error: 'Failed to create group' });
+  }
+};
+
 export const getChatHistory = async (req, res) => {
   const { userId, userId2, page = 1, limit = 20 } = req.query;
   if (!userId || !userId2) {  

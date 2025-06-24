@@ -12,12 +12,9 @@ const messageSchema = new mongoose.Schema({
         required: true,  
       },
     message: String,
-    role: { type: String,required: true }, //
+  
     timestamp: { type: Date, default: Date.now },
-   
-    image: { type: String  ,default:null},
-    documents: { type: String,default:null },
-    video: { type: String,default:null },
+     documents: { type: String,default:null },
 
   });
   const Chats = mongoose.model('chats', messageSchema);

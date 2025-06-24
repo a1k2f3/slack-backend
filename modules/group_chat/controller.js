@@ -1,18 +1,20 @@
 // import Message from '../models/Message.mjs';
-import Chats from "../../schema/chat.js";
+
+import GroupChat from "../../schema/groupchat";
 // Send a message from user to mechanic
 import path from "path";
 export const sendMessage = async (req, res) => {
-  const { senderId,receiverId,message,role,location } = req.body;
-  const image = req.file?.path.replace(/\\/g, "/"); // Normalize the path for cross-platform compatibility
+  // const { groupid } = req.body;
+  const {senderId,message, location } = req.body;
+  // const image = req.file?.path.replace(/\\/g, "/"); // Normalize the path for cross-platform compatibility
   if (!senderId || !receiverId || !message || !role || !location) {
     return res.status(400).json({ success: false, error: 'Missing required fields' });
   }
   
   try {
-    const newMessage = new Chats({
+    const newMessage = new GroupChat({
       senderId,
-      receiverId,
+    
       message,
       role,
       location,
@@ -34,6 +36,37 @@ export const sendMessage = async (req, res) => {
     res.status(500).json({ success: false, error: 'Failed to send message' });
   }
 };
+export const createGroup = async (req, res) => {
+    const { groupname,member_name,profile_image,role } = req.body;
+    const image = req.file?.path.replace(/\\/g, "/"); // Normalize the path for cross-platform compatibility
+    if (!groupname|| !member_name|| !role ) {
+      return res.status(400).json({ success: false, error: 'Missing required fields' });
+    }
+    
+    try {
+      const newgroup = new Chats({
+        goupname,member_name,
+        profile_image,
+        role,
+        location,
+        image,
+      });
+      await newMessage.save();
+      const roomId = [senderId, receiverId].sort().join("-");
+      req.io.to(`room-${roomId}`).emit('receive-message', {
+        senderId,
+        receiverId,
+        message,
+        location,
+        image,
+        timestamp: newMessage.createdAt,
+      });
+      res.status(201).json({ success: true, data: newMessage });
+    } catch (error) {
+      console.error("❌ Error sending message:", error.message);
+      res.status(500).json({ success: false, error: 'Failed to send message' });
+    }
+  };
 export const getChatHistory = async (req, res) => {
   const { userId, userId2, page = 1, limit = 20 } = req.query;
   if (!userId || !userId2) {  

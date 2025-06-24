@@ -1,6 +1,7 @@
 // import Message from '../models/Message.mjs';
 
 // import { group } from "console";
+import { group } from "console";
 import Group from "../../schema/goup";
 import GroupChat from "../../schema/groupchat";
 // Send a message from user to mechanic
@@ -10,7 +11,6 @@ export const sendMessage = async (req, res) => {
   if (!groupid||!senderId  || !message) {
     return res.status(400).json({ success: false, error: 'Missing required fields' });
   }
-  
   try {
     const newMessage = new GroupChat({
       groupid,
@@ -61,26 +61,24 @@ export const createGroup = async (req, res) => {
 };
 
 export const getChatHistory = async (req, res) => {
-  const { userId, userId2, page = 1, limit = 20 } = req.query;
-  if (!userId || !userId2) {  
+  const { groupid, page = 1, limit = 20 } = req.query;
+  if (groupid) {  
     return res.status(400).json({ success: false, error: 'User IDs are required' });
   }
   const skip = (parseInt(page) - 1) * parseInt(limit);
   try {
-    const messages = await Chats.find({
+    const messages = await GroupChat.find({
       $or: [
-        { senderId: userId, receiverId: userId2 },
-        { senderId: userId2, receiverId: userId }
-      ]
+        { groupid: groupid },
+        ]
     })
       .sort({ createdAt: 1 })
       .skip(skip)
       .limit(parseInt(limit));
 
-    const totalMessages = await Chats.countDocuments({
+    const totalMessages = await  GroupChat.countDocuments({
       $or: [
-        { senderId: userId, receiverId: userId2 },
-        { senderId: userId2, receiverId: userId }
+        { groupid: groupid },  
       ]
     });
 
